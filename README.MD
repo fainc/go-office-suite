@@ -1,3 +1,3 @@
 # Spreadsheet Export Of Map Slice
-### Sql Result / Struct => []map[string]interface{} => excel.xlsx
+### interface{} => Json => excel.xlsx
 ![img.png](img.png)
