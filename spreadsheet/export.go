@@ -53,6 +53,10 @@ func (rec *mapExport) WriteIO(w io.Writer, activeSheet int) (err error) {
 }
 
 func (rec *mapExport) mapWriter(f *excelize.File) (err error) {
+	if len(rec.Sheet) == 0 {
+		err = errors.New("sheet is required")
+		return
+	}
 	sheets := rec.Sheet
 	for i, sheet := range sheets {
 		if i == 0 {
