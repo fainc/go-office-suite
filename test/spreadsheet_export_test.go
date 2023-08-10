@@ -82,6 +82,7 @@ func TestSpreadSheetExportMini(t *testing.T) {
 	}
 }
 
-func TestName(t *testing.T) {
-	fmt.Println(gvar.New(*gtime.Now()).IsStruct())
+func TestIsSliceBug(t *testing.T) {
+	// https://github.com/gogf/gf/issues/2855
+	fmt.Println(gvar.New(gtime.Now()).IsSlice())
 }
