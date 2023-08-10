@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gogf/gf/v2/container/gvar"
+	"github.com/gogf/gf/v2/encoding/gjson"
 
 	"github.com/fainc/go-office-suite/spreadsheet"
 	"github.com/fainc/go-office-suite/spreadsheet/value"
@@ -82,5 +82,5 @@ func TestSpreadSheetExportMini(t *testing.T) {
 }
 
 func TestName(t *testing.T) {
-	fmt.Println(gvar.New(nil).IsSlice())
+	fmt.Println(gjson.New(nil).Get("id").IsSlice())
 }

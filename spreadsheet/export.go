@@ -148,7 +148,9 @@ func (rec *jsonExport) mapWriter(f *excelize.File) (err error) {
 				if len(key.Child) == 0 { // 非子键关联数据
 					// 数据类型判断
 					data := rowJson.Get(key.Index)
-					if data.IsNil() {
+					fmt.Println(key.Index)
+					fmt.Println(data)
+					if data == nil || data.IsNil() {
 						cell := GetCoordinate(writeX, writeY)
 						mergeCell = append(mergeCell, []string{cell, GetXCoordinate(writeX)})
 						writeX++ // 空数据忽略
