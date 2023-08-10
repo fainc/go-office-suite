@@ -236,7 +236,7 @@ func (rec *jsonExport) mapWriter(f *excelize.File) (err error) {
 						msEnd := fmt.Sprintf("%v%v", ms[1], writeY-1)
 						if ms[0] != msEnd {
 							_ = f.MergeCell(sheet.SheetName, ms[0], msEnd)
-							style.AlignCenter(f, sheet.SheetName, ms[0], ms[0])
+							style.AlignVertical(f, sheet.SheetName, ms[0], ms[0])
 						}
 					}
 				}
