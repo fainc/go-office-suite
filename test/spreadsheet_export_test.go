@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gogf/gf/v2/container/gvar"
+
 	"github.com/fainc/go-office-suite/spreadsheet"
 	"github.com/fainc/go-office-suite/spreadsheet/value"
 )
@@ -77,4 +79,8 @@ func TestSpreadSheetExportMini(t *testing.T) {
 	if err != nil {
 		fmt.Println(err)
 	}
+}
+
+func TestName(t *testing.T) {
+	fmt.Println(gvar.New(nil).IsSlice())
 }
