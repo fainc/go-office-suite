@@ -154,7 +154,7 @@ func (rec *jsonExport) mapWriter(f *excelize.File) (err error) {
 						writeX++ // 空数据忽略
 						continue
 					}
-					if !data.IsSlice() { // 常规数据写入
+					if data.IsInt() || data.IsSlice() { // 常规数据写入
 						cell := GetCoordinate(writeX, writeY)
 						if key.RenderImage {
 							err = RenderImage(f, sheet.SheetName, cell, data.Interface())
@@ -169,7 +169,7 @@ func (rec *jsonExport) mapWriter(f *excelize.File) (err error) {
 						}
 						mergeCell = append(mergeCell, []string{cell, GetXCoordinate(writeX)})
 					}
-					if data.IsSlice() { // 切片写入
+					if !data.IsInt() && data.IsSlice() { // 切片写入
 						mSlice := data.Slice()
 						for i, slice := range mSlice {
 							cell := GetCoordinate(writeX, writeY+i)
