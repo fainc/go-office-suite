@@ -12,20 +12,20 @@ import (
 	"github.com/fainc/go-office-suite/spreadsheet/value"
 )
 
-type mapExport struct{}
-
-var mapExportVar = mapExport{}
-
-func MapExport() *mapExport {
-	return &mapExportVar
+type mapExport struct {
+	Sheet []*value.Sheet
 }
 
-func (rec *mapExport) SaveFile(savePath string, activeSheet int, sheets []*value.Sheet) (err error) {
+func MapExport(sheet []*value.Sheet) *mapExport {
+	return &mapExport{Sheet: sheet}
+}
+
+func (rec *mapExport) SaveFile(savePath string, activeSheet int) (err error) {
 	f := excelize.NewFile()
 	defer func() {
 		_ = f.Close()
 	}()
-	err = rec.mapWriter(f, sheets)
+	err = rec.mapWriter(f)
 	if err != nil {
 		return err
 	}
@@ -36,12 +36,12 @@ func (rec *mapExport) SaveFile(savePath string, activeSheet int, sheets []*value
 	return
 }
 
-func (rec *mapExport) WriteIO(w io.Writer, activeSheet int, sheets []*value.Sheet) (err error) {
+func (rec *mapExport) WriteIO(w io.Writer, activeSheet int) (err error) {
 	f := excelize.NewFile()
 	defer func() {
 		_ = f.Close()
 	}()
-	err = rec.mapWriter(f, sheets)
+	err = rec.mapWriter(f)
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,8 @@ func (rec *mapExport) WriteIO(w io.Writer, activeSheet int, sheets []*value.Shee
 	return
 }
 
-func (rec *mapExport) mapWriter(f *excelize.File, sheets []*value.Sheet) (err error) {
+func (rec *mapExport) mapWriter(f *excelize.File) (err error) {
+	sheets := rec.Sheet
 	for i, sheet := range sheets {
 		if i == 0 {
 			if sheet.SheetName != "" { // 重命名Sheet1
