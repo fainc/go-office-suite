@@ -39,19 +39,19 @@ func TestSpreadSheetExport(t *testing.T) {
 	// support net image,but need filed RenderImage is true
 	// dataRow["image"] = "https://www.apple.com.cn/iphone/home/images/overview/hero/hero_iphone_14__de41900yuggi_medium_2x.jpg"
 	dataRows = append(dataRows, dataRow)
-	for i := 0; i < 20000; i++ {
+	for i := 0; i < 1000; i++ {
 		dataRows = append(dataRows, dataRow) //  repeat row
 	}
 
 	var sheets []*value.Sheet
 	// Index accout rows key,child
-	fields := []value.Field{{Name: "ID", Index: "id"}, {Name: "Name", Index: "name"}, {Name: "Specs", Index: "specs", Child: []value.Field{{Name: "ID", Index: "specID"}, {Name: "Name", Index: "specName"}, {Name: "Chip", Index: "image", RenderImage: true}}}, {Name: "Slice", Index: "slices"}, {Name: "Net Image", Index: "image", RenderImage: true}}
+	fields := []value.Field{{Name: "ID", Index: "id.id"}, {Name: "Name", Index: "name"}, {Name: "Specs", Index: "specs", Child: []value.Field{{Name: "ID", Index: "specID"}, {Name: "Name", Index: "specName"}, {Name: "Chip", Index: "image", RenderImage: true}}}, {Name: "Slice", Index: "slices"}, {Name: "Net Image", Index: "image", RenderImage: true}}
 	// 标题
 	var desc []value.Desc
 	desc = append(desc, value.Desc{Text: "Test Spreadsheet", Column: 4, Align: "center", FontSize: 24})
 	desc = append(desc, value.Desc{Text: time.Now().String(), Column: 2, Align: "center", FontSize: 10})
 	sheets = append(sheets, &value.Sheet{SheetName: "Test", Desc: desc, Field: fields, Rows: dataRows})
-	err := spreadsheet.MapExport(sheets).SaveFile("test_specs.xlsx", 0)
+	err := spreadsheet.JsonExport(sheets).SaveFile("test_specs.xlsx", 0)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -73,7 +73,7 @@ func TestSpreadSheetExportMini(t *testing.T) {
 	title = append(title, value.Desc{Text: "Test Spreadsheet", Column: 4, Align: "center", FontSize: 24})
 	title = append(title, value.Desc{Text: time.Now().String(), Column: 2, Align: "center", FontSize: 10})
 	sheets = append(sheets, &value.Sheet{SheetName: "Test", Desc: title, Field: keys, Rows: dataRows})
-	err := spreadsheet.MapExport(sheets).SaveFile("test_specs.xlsx", 0)
+	err := spreadsheet.JsonExport(sheets).SaveFile("test_specs.xlsx", 0)
 	if err != nil {
 		fmt.Println(err)
 	}

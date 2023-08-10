@@ -1,10 +1,10 @@
 package value
 
 type Sheet struct {
-	SheetName string                   `dc:"表名称，不设置默认顺序Sheet1,2,3"`
-	Desc      []Desc                   `dc:"表内头部文档描述"`
-	Field     []Field                  `dc:"数据键"`
-	Rows      []map[string]interface{} `dc:"数据集"`
+	SheetName string      `dc:"表名称，不设置默认顺序Sheet1,2,3"`
+	Desc      []Desc      `dc:"表内头部文档描述"`
+	Field     []Field     `dc:"数据键"`
+	Rows      interface{} `dc:"数据集"`
 }
 
 type Desc struct {

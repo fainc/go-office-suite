@@ -4,23 +4,23 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"reflect"
 
+	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/xuri/excelize/v2"
 
 	"github.com/fainc/go-office-suite/spreadsheet/style"
 	"github.com/fainc/go-office-suite/spreadsheet/value"
 )
 
-type mapExport struct {
+type jsonExport struct {
 	Sheet []*value.Sheet
 }
 
-func MapExport(sheet []*value.Sheet) *mapExport {
-	return &mapExport{Sheet: sheet}
+func JsonExport(sheet []*value.Sheet) *jsonExport {
+	return &jsonExport{Sheet: sheet}
 }
 
-func (rec *mapExport) SaveFile(savePath string, activeSheet int) (err error) {
+func (rec *jsonExport) SaveFile(savePath string, activeSheet int) (err error) {
 	f := excelize.NewFile()
 	defer func() {
 		_ = f.Close()
@@ -36,7 +36,7 @@ func (rec *mapExport) SaveFile(savePath string, activeSheet int) (err error) {
 	return
 }
 
-func (rec *mapExport) WriteIO(w io.Writer, activeSheet int) (err error) {
+func (rec *jsonExport) WriteIO(w io.Writer, activeSheet int) (err error) {
 	f := excelize.NewFile()
 	defer func() {
 		_ = f.Close()
@@ -52,7 +52,7 @@ func (rec *mapExport) WriteIO(w io.Writer, activeSheet int) (err error) {
 	return
 }
 
-func (rec *mapExport) mapWriter(f *excelize.File) (err error) {
+func (rec *jsonExport) mapWriter(f *excelize.File) (err error) {
 	if len(rec.Sheet) == 0 {
 		err = errors.New("sheet is required")
 		return
@@ -138,45 +138,39 @@ func (rec *mapExport) mapWriter(f *excelize.File) (err error) {
 		}
 		writeX = 0
 		writeY += w.Deep
+		rows := gjson.New(sheet.Rows)
 		// 数据行写入
-		for _, data := range sheet.Rows { // 行
+		for _, row := range rows.Array() { // 行
+			rowJson := gjson.New(row)
 			jumpY := 0
 			var mergeCell [][]string
 			for _, key := range sheet.Field { // 列
 				if len(key.Child) == 0 { // 非子键关联数据
 					// 数据类型判断
-					if d, ok := data[key.Index]; !ok || d == nil {
+					data := rowJson.Get(key.Index)
+					if data == nil {
 						cell := GetCoordinate(writeX, writeY)
 						mergeCell = append(mergeCell, []string{cell, GetXCoordinate(writeX)})
 						writeX++ // 空数据忽略
 						continue
 					}
-					t := reflect.TypeOf(data[key.Index])
-					if t == nil { // 反射错误
-						err = errors.New("reflect.TypeOf " + key.Index + " 发生错误")
-						break
-					}
-					if t.Kind() != reflect.Slice { // 常规数据写入
+					if !data.IsSlice() { // 常规数据写入
 						cell := GetCoordinate(writeX, writeY)
 						if key.RenderImage {
-							err = RenderImage(f, sheet.SheetName, cell, data[key.Index])
+							err = RenderImage(f, sheet.SheetName, cell, data.Interface())
 							if err != nil {
 								break
 							}
 						} else {
-							err = f.SetCellValue(sheet.SheetName, cell, data[key.Index])
+							err = f.SetCellValue(sheet.SheetName, cell, data.Interface())
 							if err != nil {
 								break
 							}
 						}
 						mergeCell = append(mergeCell, []string{cell, GetXCoordinate(writeX)})
 					}
-					if t.Kind() == reflect.Slice { // 切片写入
-						mSlice, ok := data[key.Index].([]interface{})
-						if !ok {
-							err = errors.New(key.Index + " must be []interface{}")
-							break
-						}
+					if data.IsSlice() { // 切片写入
+						mSlice := data.Slice()
 						for i, slice := range mSlice {
 							cell := GetCoordinate(writeX, writeY+i)
 							if key.RenderImage {
@@ -201,15 +195,12 @@ func (rec *mapExport) mapWriter(f *excelize.File) (err error) {
 					break
 				}
 				if len(key.Child) != 0 { // 子键关联数据
-					if d, ok := data[key.Index]; !ok || d == nil { // 无数据 忽略
+					data := rowJson.Get(key.Index)
+					if data == nil {
 						writeX += len(key.Child)
 						continue
 					}
-					mMap, ok := data[key.Index].([]map[string]interface{})
-					if !ok {
-						err = errors.New(key.Index + " must be []map[string]interface{}")
-						break
-					}
+					mMap := data.Maps()
 					for _, childData := range mMap {
 						for c, ckey := range key.Child {
 							childCell := GetCoordinate(writeX+c, writeY)
